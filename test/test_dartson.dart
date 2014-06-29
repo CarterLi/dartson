@@ -46,14 +46,14 @@ void main() {
     String str = serialize(map);
     expect(str, '{"itsAmap":{"key1":1,"key2":"val"},"itsAarray":[1,2,3],"keyk":"valo"}');
   });
-  
+
   test('serialize: simple object', () {
     var obj = {
       "test": "test"
     };
     JustObject test = new JustObject();
     test.object = obj;
-    
+
     expect(serialize(test), '{"object":{"test":"test"}}');
   });
 
@@ -63,14 +63,14 @@ void main() {
     String str = serialize(test);
     expect(str,'{"name":"test1"}');
   });
-  
+
   test('serialize: ignore in object', () {
     var test = new TestClass1();
     test.name = "test";
     test.ignored = true;
     expect(serialize(test), '{"name":"test"}');
   });
-  
+
   test('serialize: renamed property of object', () {
     var test = new TestClass1();
     test.renamed = "test";
@@ -97,7 +97,7 @@ void main() {
     expect(test.map["k"], "o");
     expect(test.renamed, "test");
   });
-  
+
   test('parse: no constructor found', () {
     NoConstructorError err;
     try {
@@ -105,60 +105,66 @@ void main() {
     } catch(ex) {
       err = ex;
     }
-    
+
     expect(err != null, true);
     expect(err is NoConstructorError, true);
   });
-  
+
   test('parse: nested parsing', () {
     TestClass1 test = parse('{"name":"parent","child":{"name":"child"}}', TestClass1);
     expect(test.child.name, "child");
   });
-  
+
   test('parse: using setter', () {
     TestSetter test = parse('{"name":"test"}', TestSetter);
     expect(test.name, 'test');
   });
-  
+
   test('parse: generics list', () {
     ListClass test = parse('{"list": [{"name": "test1"}, {"name": "test2"}]}', ListClass);
-    
+
     expect(test.list[0].name, 'test1');
     expect(test.list[1].name, 'test2');
   });
-  
+
   test('parse: simple list', () {
     SimpleList list = parse('{"list":[1,2,3]}', SimpleList);
     expect(list.list[0], 1);
   });
-  
+
   test('parse: generic map', () {
     MapClass test = parse('{"map": {"test": {"name": "test"}, "test2": {"name": "test2"}}}', MapClass);
 
-    expect(test.map["test"].name, "test");    
+    expect(test.map["test"].name, "test");
     expect(test.map["test2"].name, "test2");
   });
-  
+
   test('parse: simple map', () {
     SimpleMap test = parse('{"map": {"test": "test", "test2": "test2"}}', SimpleMap);
 
-    expect(test.map["test"], "test");    
+    expect(test.map["test"], "test");
     expect(test.map["test2"], "test2");
   });
-  
+
   test('parse: simple map with type declaration', () {
     SimpleMapString test = parse('{"map": {"test": 1, "test2": 2}}', SimpleMapString);
 
-    expect(test.map["test"], 1);    
+    expect(test.map["test"], 1);
     expect(test.map["test2"], 2);
   });
-  
+
   test('parse: list of simple class', () {
     List<SimpleClass> test = parseList('[{"name":"test"},{"name":"test2"}]', SimpleClass);
     expect(test[0].name, "test");
     expect(test[1].name, "test2");
   });
-  
+
+  test('parse: base class', () {
+    ChildClass test = parse('{"name":"base", "childName":"child"}', ChildClass);
+    expect(test.name, "base");
+    expect(test.childName, "child");
+  });
+
 //  test('parse: just object', () {
 //    JustObject obj = parse('{"object":"test"}', JustObject);
 //    expect(obj.object, 'test');
@@ -225,10 +231,10 @@ class TestClass1 {
   Map map;
   TestClass1 child;
   int intNumber;
-  
+
   @DartsonProperty(ignore:true)
   bool ignored;
-  
+
   @DartsonProperty(name:"the_renamed")
   String renamed;
 
@@ -249,7 +255,7 @@ class TestGetter {
 
 class TestSetter {
   String _name;
-  
+
   String get name => _name;
   set name(String n) => _name = n;
 }
@@ -264,8 +270,12 @@ class NestedClass {
 
 class SimpleClass {
   String name;
-  
+
   String toString() => "SimpleClass: name: ${name}";
+}
+
+class ChildClass extends SimpleClass {
+  String childName;
 }
 
 class ListClass {
