@@ -116,44 +116,41 @@ bool hasTransformer(Type type) {
  * Puts the data of the [filler] into the object in [objMirror]
  *  Throws [IncorrectTypeTransform] if json data types doesn't match.
  */
-void _fillObject(InstanceMirror objMirror, Map filler, {ClassMirror classMirror: null}) {
-  if (classMirror == null) {
-    classMirror = objMirror.type;
-  }
-  if (classMirror.superclass != null) {
-    _fillObject(objMirror, filler, classMirror: classMirror.superclass);
-  }
+void _fillObject(InstanceMirror objMirror, Map filler) {
+  ClassMirror classMirror = objMirror.type;
 
-  classMirror.declarations.forEach((sym, decl) {
-    if (!decl.isPrivate && (decl is VariableMirror || decl is MethodMirror)) {
-      String varName = _getName(sym);
-      String fieldName = varName;
-      TypeMirror valueType;
+  do {
+    classMirror.declarations.forEach((sym, decl) {
+      if (!decl.isPrivate && (decl is VariableMirror || decl is MethodMirror)) {
+        String varName = _getName(sym);
+        String fieldName = varName;
+        TypeMirror valueType;
 
-      // if it's a setter function we need to change the name
-      if (decl is MethodMirror && decl.isSetter) {
-        fieldName = varName = varName.substring(0, varName.length - 1);
-        _log('Found setter function varName: ' + varName);
-        valueType = decl.parameters[0].type;
-      } else if (decl is VariableMirror) {
-        valueType = decl.type;
-      } else {
-        return;
+        // if it's a setter function we need to change the name
+        if (decl is MethodMirror && decl.isSetter) {
+          fieldName = varName = varName.substring(0, varName.length - 1);
+          _log('Found setter function varName: ' + varName);
+          valueType = decl.parameters[0].type;
+        } else if (decl is VariableMirror) {
+          valueType = decl.type;
+        } else {
+          return;
+        }
+
+        // check if the property is renamed by DartsonProperty
+        DartsonProperty prop = _getProperty(decl);
+        if (prop != null && prop.name != null) {
+          fieldName = prop.name;
+        }
+
+        _log('Try to fill object with: ${fieldName}: ${filler[fieldName]}');
+        if (filler[fieldName] != null) {
+          objMirror.setField(new Symbol(varName), _convertValue(valueType,
+              filler[fieldName], varName));
+        }
       }
-
-      // check if the property is renamed by DartsonProperty
-      DartsonProperty prop = _getProperty(decl);
-      if (prop != null && prop.name != null) {
-        fieldName = prop.name;
-      }
-
-      _log('Try to fill object with: ${fieldName}: ${filler[fieldName]}');
-      if (filler[fieldName] != null) {
-        objMirror.setField(new Symbol(varName), _convertValue(valueType,
-            filler[fieldName], varName));
-      }
-    }
-  });
+    });
+  } while ((classMirror = classMirror.superclass).reflectedType != Object);
 
   _log("Filled object completly: ${filler}");
 }

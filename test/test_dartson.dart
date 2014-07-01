@@ -57,6 +57,17 @@ void main() {
     expect(serialize(test), '{"object":{"test":"test"}}');
   });
 
+  test('serialize: base class', () {
+    var obj = {
+      "test": "test1"
+    };
+    ChildClass1 test = new ChildClass1();
+    test.object = obj;
+    test.child = "child2";
+
+    expect(serialize(test), '{"child":"child2","object":{"test":"test1"}}');
+  });
+
   test('serialize: simple class', () {
     var test = new TestClass1();
     test.name = "test1";
@@ -243,6 +254,10 @@ class TestClass1 {
 
 class JustObject {
   Object object;
+}
+
+class ChildClass1 extends JustObject {
+  Object child;
 }
 
 class TestGetter {

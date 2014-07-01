@@ -59,12 +59,15 @@ Object _serializeObject(Object obj) {
     return transformer.encode(obj);
   } else {
     Map result = new Map<String,Object>();
-    classMirror.declarations.forEach((sym, decl) {
-      if (!decl.isPrivate &&
-      (decl is VariableMirror || (decl is MethodMirror && decl.isGetter))) {
-        _pushField(sym, decl, instMirror, result);
-      }
-    });
+
+    do {
+      classMirror.declarations.forEach((sym, decl) {
+        if (!decl.isPrivate &&
+        (decl is VariableMirror || (decl is MethodMirror && decl.isGetter))) {
+          _pushField(sym, decl, instMirror, result);
+        }
+      });
+    } while ((classMirror = classMirror.superclass).reflectedType != Object);
 
     _log("Serialization completed.");
     return result;
@@ -73,7 +76,7 @@ Object _serializeObject(Object obj) {
 
 /**
  * Checks the DeclarationMirror [variable] for annotations and adds
- * the value to the [result] map. If there's no [DartsonProperty] annotation 
+ * the value to the [result] map. If there's no [DartsonProperty] annotation
  * with a different name set it will use the name of [symbol].
  */
 void _pushField(Symbol symbol, DeclarationMirror variable,
@@ -82,16 +85,16 @@ void _pushField(Symbol symbol, DeclarationMirror variable,
   Object value = field.reflectee;
   String fieldName = MirrorSystem.getName(symbol);
   _log("Start serializing field: ${fieldName}");
-  
+
   // check if there is a DartsonProperty annotation
   DartsonProperty prop = _getProperty(variable);
   _log("Property: ${prop}");
-  
-  if (prop != null && prop.name != null) {  
+
+  if (prop != null && prop.name != null) {
     _log("Field renamed to: ${prop.name}");
     fieldName = prop.name;
   }
-  
+
   if (value != null && (prop != null ? !prop.ignore : true)) {
     _log("Serializing field: ${fieldName}");
       result[fieldName] = objectToSerializable(value);
