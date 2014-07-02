@@ -199,7 +199,7 @@ void main() {
   });
 
     test('register simple', () {
-      registerTransformer(new SimpleTransformer<DateTime>());
+      registerTransformer(new SimpleTransformer());
       expect(hasTransformer(DateTime), true);
     });
 
@@ -220,12 +220,12 @@ void main() {
 
 }
 
-class SimpleTransformer<T> extends TypeTransformer {
-  T decode(dynamic value) {
+class SimpleTransformer extends TypeTransformer<DateTime> {
+  DateTime decode(dynamic value) {
     return DateTime.parse(value);
   }
 
-  dynamic encode(T value) {
+  dynamic encode(DateTime value) {
     return value.toString();
   }
 }

@@ -16,4 +16,9 @@ abstract class TypeTransformer<T> {
    * correct type.
    */
   T decode(dynamic value);
+
+  /**
+   * Gets the type [T] to be serialized
+   */
+  Type get type => T;
 }

@@ -3,12 +3,12 @@ part of dartson.default_transformers;
 /**
  * A simple DateTime transformer which uses the toString() method.
  */
-class DateTimeParser<T> extends TypeTransformer {
-  T decode(dynamic value) {
+class DateTimeParser extends TypeTransformer<DateTime> {
+  DateTime decode(dynamic value) {
     return DateTime.parse(value);
   }
 
-  dynamic encode(T value) {
+  dynamic encode(DateTime value) {
     return value.toString();
   }
 }

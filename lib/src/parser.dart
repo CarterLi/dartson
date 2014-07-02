@@ -103,8 +103,8 @@ dynamic fill(Map dataObject, Object object) {
  * Registers the [transformer] into the map.
  */
 void registerTransformer(TypeTransformer transformer) {
-  InstanceMirror mirr = reflect(transformer);
-  _transformers[_getName(mirr.type.typeArguments[0].qualifiedName)] = transformer;
+  TypeMirror mirr = reflectType(transformer.type);
+  _transformers[_getName(mirr.qualifiedName)] = transformer;
 }
 
 bool hasTransformer(Type type) {
