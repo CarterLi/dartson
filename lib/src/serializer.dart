@@ -60,14 +60,16 @@ Object _serializeObject(Object obj) {
   } else {
     Map result = new Map<String,Object>();
 
-    do {
+    while (classMirror.reflectedType != Object) {
       classMirror.declarations.forEach((sym, decl) {
         if (!decl.isPrivate &&
         (decl is VariableMirror || (decl is MethodMirror && decl.isGetter))) {
           _pushField(sym, decl, instMirror, result);
         }
       });
-    } while ((classMirror = classMirror.superclass).reflectedType != Object);
+
+      classMirror = classMirror.superclass;
+    };
 
     _log("Serialization completed.");
     return result;

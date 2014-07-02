@@ -119,7 +119,7 @@ bool hasTransformer(Type type) {
 void _fillObject(InstanceMirror objMirror, Map filler) {
   ClassMirror classMirror = objMirror.type;
 
-  do {
+  while (classMirror.reflectedType != Object) {
     classMirror.declarations.forEach((sym, decl) {
       if (!decl.isPrivate && (decl is VariableMirror || decl is MethodMirror)) {
         String varName = _getName(sym);
@@ -150,7 +150,9 @@ void _fillObject(InstanceMirror objMirror, Map filler) {
         }
       }
     });
-  } while ((classMirror = classMirror.superclass).reflectedType != Object);
+
+    classMirror = classMirror.superclass;
+  };
 
   _log("Filled object completly: ${filler}");
 }

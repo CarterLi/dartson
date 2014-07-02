@@ -176,10 +176,10 @@ void main() {
     expect(test.childName, "child");
   });
 
-//  test('parse: just object', () {
-//    JustObject obj = parse('{"object":"test"}', JustObject);
-//    expect(obj.object, 'test');
-//  });
+  test('parse: just object', () {
+    JustObject obj = parse('{"object":"test"}', JustObject);
+    expect(obj.object, 'test');
+  });
 
   test('map: parse object', () {
     SimpleMapString test = map({
@@ -217,7 +217,15 @@ void main() {
       expect(str, '{"testDate":"${obj.testDate.toString()}"}');
     });
 
+    test('serialize: raw Object', () {
+      var str = serialize(new Object());
+      expect(str, '{}');
+    });
 
+    test('parse: raw Object', () {
+      var obj = parse("{}", Object);
+      expect(obj != null, true);
+    });
 }
 
 class SimpleTransformer extends TypeTransformer<DateTime> {
